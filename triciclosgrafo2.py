@@ -13,11 +13,6 @@ def get_edges(line):#con esta función vamos a conseguir las aristas
     else:
         pass 
         
-def get_distict(sc, filename):#Agrupamos los veértices para eliminar repiticiones 
-    return sc.textFile(filename).\
-        map(get_edges).\
-        filter(lambda x: x is not None).\
-        distinct() 
 
 def funcion_auxiliar(tupla):#Función ayuda con la recomendación del enunciado
     result = []
@@ -30,33 +25,37 @@ def funcion_auxiliar(tupla):#Función ayuda con la recomendación del enunciado
                 result.append(((tupla[1][j],tupla[1][i]),('pending',tupla[0])))
     return result
 
-
     
-def condicion(tupla):#condicion para el filter
+def condicion(tupla):#condicion del filter
     return (len(tupla[1])>= 2 and 'exists' in tupla[1])
 
-    
+
 def coloca_ternas(tupla):
     result = []
     for elem in tupla[1]:
         if elem != 'exists':
-            result.append((elem[1],tupla[0][0], tupla[0][1]))
+            result.append((elem[1], tupla[0][0], tupla[0][1]))
     return result
 
 
     
-def triciclos_apartado1(sc,filename):
-    edges = get_distict(sc,filename)
-    asociados = edges.groupByKey().mapValues(list).flatMap(funcion_auxiliar)
+def triciclos_apartado2(sc, files):
+    rdd = sc.parallelize([])
+    for file in files:
+        file_rdd = sc.textFile(file)
+        rdd = rdd.union(file_rdd)
+    adj = rdd.map(get_edges).filter(lambda x: x is not None).distinct()
+    asociados = adj.groupByKey().mapValues(list).flatMap(funcion_auxiliar)
     triciclos = asociados.groupByKey().mapValues(list).filter(condicion).flatMap(coloca_ternas)
     print(triciclos.collect())
     return triciclos.collect()
-    
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    lista = []
+    if len(sys.argv) <= 2:
         print(f"Uso: python3 {0} <file>")
     else:
-        print(sys.argv[1])
-        triciclos_apartado1(sc,sys.argv[1])
-        
+        for i in range(len(sys.argv)):
+            if i != 0:
+                lista.append(sys.argv[i])
+        triciclos_apartado2(sc,lista)

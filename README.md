@@ -7,3 +7,5 @@ Para ejecutarlos poner:
 1) python3 triciclosgrafo1.py archivo.txt 
 2) python3 triciclosgrafo1.py [archivos.txt] 
 3) python3 triciclosgrafo1.py [archivos.txt]
+
+siendo [archivos.txt] las direcciones de los distintos archivos que se quieren ver
